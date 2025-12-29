@@ -7,8 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Mon Budget">
     <meta name="theme-color" content="#007aff">
-    <title>Mon Budget</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiTW9uIEJ1ZGdldCIsInNob3J0X25hbWUiOiJCdWRnZXQiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2ZmZmZmZiIsInRoZW1lX2NvbG9yIjoiIzAwN2FmZiJ9">
+    <title>Mon Budget Pro</title>
     <style>
         * {
             margin: 0;
@@ -34,7 +33,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
@@ -44,10 +43,183 @@
             margin-bottom: 8px;
         }
 
+        .month-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .month-btn {
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .month-btn:active {
+            transform: scale(0.95);
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .action-btn {
+            background: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+
+        .action-btn.reset {
+            color: #ff3b30;
+        }
+
+        .action-btn.history {
+            color: #007aff;
+        }
+
         .total-budget {
             font-size: 18px;
             color: #6e6e73;
             margin-top: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6e6e73;
+        }
+
+        .tab.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .overview-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .overview-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #f5f5f7;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6e6e73;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-value.spent {
+            color: #ff3b30;
+        }
+
+        .stat-value.remaining {
+            color: #34c759;
+        }
+
+        .stat-value.total {
+            color: #007aff;
+        }
+
+        .global-progress {
+            margin-top: 15px;
+        }
+
+        .global-progress-bar {
+            height: 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .global-progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .global-progress-text {
+            text-align: center;
+            font-size: 15px;
+            color: #6e6e73;
         }
 
         .chart-container {
@@ -63,6 +235,12 @@
             height: 280px;
             margin: 0 auto;
             max-width: 280px;
+        }
+
+        .bar-chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
         }
 
         .categories-list {
@@ -166,6 +344,46 @@
             text-align: right;
         }
 
+        .expenses-list {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .expense-item:last-child {
+            border-bottom: none;
+        }
+
+        .expense-info {
+            flex: 1;
+        }
+
+        .expense-description {
+            font-size: 15px;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .expense-date {
+            font-size: 13px;
+            color: #6e6e73;
+        }
+
+        .expense-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ff3b30;
+            margin-right: 10px;
+        }
+
         .add-btn {
             position: fixed;
             bottom: 20px;
@@ -243,12 +461,15 @@
         .close-btn {
             background: none;
             border: none;
-            font-size: 28px;
-            color: #6e6e73;
+            font-size: 32px;
             cursor: pointer;
+            opacity: 0.6;
             padding: 0;
             width: 32px;
             height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .form-group {
@@ -259,40 +480,41 @@
             display: block;
             font-size: 15px;
             font-weight: 600;
-            color: #1d1d1f;
             margin-bottom: 8px;
+            color: #1d1d1f;
         }
 
         .form-input {
             width: 100%;
-            padding: 14px;
-            font-size: 17px;
-            border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            background: #f9f9f9;
-            transition: all 0.2s;
+            padding: 12px 16px;
+            border: 1px solid #d1d1d6;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s;
         }
 
         .form-input:focus {
             outline: none;
             border-color: #007aff;
-            background: white;
         }
 
         .color-picker {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin-top: 12px;
+            gap: 10px;
         }
 
         .color-option {
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            border: 3px solid transparent;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .color-option:active {
+            transform: scale(0.9);
         }
 
         .color-option.selected {
@@ -302,19 +524,23 @@
 
         .btn-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             margin-top: 25px;
         }
 
         .btn {
             flex: 1;
-            padding: 16px;
-            font-size: 17px;
-            font-weight: 600;
+            padding: 14px;
             border: none;
             border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.7;
         }
 
         .btn-primary {
@@ -322,68 +548,79 @@
             color: white;
         }
 
-        .btn-primary:active {
-            background: #0051d5;
-        }
-
         .btn-secondary {
             background: #f0f0f0;
             color: #1d1d1f;
         }
 
-        .btn-secondary:active {
-            background: #e0e0e0;
+        .btn-danger {
+            background: #ff3b30;
+            color: white;
         }
 
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            color: #6e6e73;
         }
 
         .empty-state-icon {
             font-size: 64px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .empty-state-text {
-            font-size: 17px;
+            font-size: 16px;
+            color: #6e6e73;
+            line-height: 1.5;
         }
 
-        .expense-list {
-            margin-top: 15px;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 15px;
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .expense-item {
+        .history-month {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .history-month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f5f5f5;
+            margin-bottom: 15px;
         }
 
-        .expense-item:last-child {
-            border-bottom: none;
+        .history-month-title {
+            font-size: 18px;
+            font-weight: 700;
         }
 
-        .expense-description {
-            font-size: 15px;
-            color: #1d1d1f;
-            flex: 1;
+        .history-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
 
-        .expense-amount {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-right: 10px;
+        .history-stat {
+            text-align: center;
+            padding: 10px;
+            background: #f5f5f7;
+            border-radius: 8px;
         }
 
-        .expense-date {
-            font-size: 13px;
+        .history-stat-label {
+            font-size: 11px;
             color: #6e6e73;
+            margin-bottom: 4px;
+        }
+
+        .history-stat-value {
+            font-size: 16px;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -398,13 +635,23 @@
             '#F8B195', '#F67280', '#C06C84', '#6C5B7B'
         ];
 
+        const MONTHS = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ];
+
         class BudgetApp {
             constructor() {
-                this.categories = this.loadCategories();
+                this.currentDate = new Date();
+                this.viewingMonth = new Date();
+                this.categories = [];
+                this.history = this.loadHistory();
                 this.modalMode = 'category';
                 this.editingCategory = null;
                 this.selectedCategoryForExpense = null;
                 this.chartInstance = null;
+                this.barChartInstance = null;
+                this.activeTab = 'current';
                 this.formData = {
                     name: '',
                     limit: '',
@@ -412,53 +659,175 @@
                     expenseDescription: '',
                     expenseAmount: ''
                 };
+                
+                this.checkMonthReset();
+                this.loadCurrentMonth();
                 this.render();
             }
 
-            loadCategories() {
-                const saved = localStorage.getItem('budgetCategories');
-                return saved ? JSON.parse(saved) : [];
+            checkMonthReset() {
+                const lastCheck = localStorage.getItem('lastMonthCheck');
+                const currentMonthKey = this.getMonthKey(this.currentDate);
+                
+                if (lastCheck !== currentMonthKey) {
+                    const previousMonth = new Date(this.currentDate);
+                    previousMonth.setMonth(previousMonth.getMonth() - 1);
+                    const previousMonthKey = this.getMonthKey(previousMonth);
+                    
+                    const currentData = localStorage.getItem('budgetCategories');
+                    if (currentData) {
+                        const categories = JSON.parse(currentData);
+                        if (categories.some(cat => cat.spent > 0)) {
+                            this.saveMonthToHistory(previousMonthKey, categories);
+                        }
+                        
+                        const resetCategories = categories.map(cat => ({
+                            ...cat,
+                            spent: 0,
+                            expenses: []
+                        }));
+                        localStorage.setItem('budgetCategories', JSON.stringify(resetCategories));
+                    }
+                    
+                    localStorage.setItem('lastMonthCheck', currentMonthKey);
+                }
+            }
+
+            getMonthKey(date) {
+                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            }
+
+            loadHistory() {
+                const saved = localStorage.getItem('budgetHistory');
+                return saved ? JSON.parse(saved) : {};
+            }
+
+            saveHistory() {
+                localStorage.setItem('budgetHistory', JSON.stringify(this.history));
+            }
+
+            saveMonthToHistory(monthKey, categories) {
+                this.history[monthKey] = {
+                    categories: JSON.parse(JSON.stringify(categories)),
+                    savedAt: new Date().toISOString()
+                };
+                this.saveHistory();
+            }
+
+            loadCurrentMonth() {
+                const monthKey = this.getMonthKey(this.viewingMonth);
+                const currentMonthKey = this.getMonthKey(this.currentDate);
+                
+                if (monthKey === currentMonthKey) {
+                    const saved = localStorage.getItem('budgetCategories');
+                    this.categories = saved ? JSON.parse(saved) : [];
+                } else {
+                    if (this.history[monthKey]) {
+                        this.categories = JSON.parse(JSON.stringify(this.history[monthKey].categories));
+                    } else {
+                        this.categories = [];
+                    }
+                }
             }
 
             saveCategories() {
-                localStorage.setItem('budgetCategories', JSON.stringify(this.categories));
+                const currentMonthKey = this.getMonthKey(this.currentDate);
+                const viewingMonthKey = this.getMonthKey(this.viewingMonth);
+                
+                if (currentMonthKey === viewingMonthKey) {
+                    localStorage.setItem('budgetCategories', JSON.stringify(this.categories));
+                }
+            }
+
+            changeMonth(direction) {
+                this.viewingMonth.setMonth(this.viewingMonth.getMonth() + direction);
+                this.loadCurrentMonth();
+                this.render();
+            }
+
+            goToCurrentMonth() {
+                this.viewingMonth = new Date();
+                this.loadCurrentMonth();
+                this.render();
+            }
+
+            resetCurrentMonth() {
+                if (confirm('Êtes-vous sûr de vouloir réinitialiser le mois actuel ? Cette action est irréversible.')) {
+                    const monthKey = this.getMonthKey(this.viewingMonth);
+                    
+                    if (this.categories.some(cat => cat.spent > 0)) {
+                        this.saveMonthToHistory(monthKey + '-backup', this.categories);
+                    }
+                    
+                    this.categories = this.categories.map(cat => ({
+                        ...cat,
+                        spent: 0,
+                        expenses: []
+                    }));
+                    
+                    this.saveCategories();
+                    this.render();
+                }
+            }
+
+            isCurrentMonth() {
+                return this.getMonthKey(this.viewingMonth) === this.getMonthKey(this.currentDate);
+            }
+
+            changeTab(tab) {
+                this.activeTab = tab;
+                this.render();
             }
 
             render() {
                 const app = document.getElementById('app');
                 const totalSpent = this.categories.reduce((sum, cat) => sum + cat.spent, 0);
                 const totalLimit = this.categories.reduce((sum, cat) => sum + cat.limit, 0);
+                const isCurrentMonth = this.isCurrentMonth();
+                const monthName = MONTHS[this.viewingMonth.getMonth()] + ' ' + this.viewingMonth.getFullYear();
 
                 app.innerHTML = `
                     <div class="app">
                         <div class="header">
-                            <h1>Mon Budget</h1>
-                            <div class="total-budget">
-                                <strong>${totalSpent.toFixed(2)}€</strong> / ${totalLimit.toFixed(2)}€
+                            <h1>Mon Budget Pro</h1>
+                            <div class="month-selector">
+                                <button class="month-btn" onclick="app.changeMonth(-1)">◀</button>
+                                <div class="current-month">${monthName}</div>
+                                <button class="month-btn" onclick="app.changeMonth(1)">▶</button>
                             </div>
+                            ${!isCurrentMonth ? `
+                                <button class="action-btn" onclick="app.goToCurrentMonth()">📅 Mois actuel</button>
+                            ` : ''}
+                            ${isCurrentMonth ? `
+                                <div class="action-buttons">
+                                    <button class="action-btn reset" onclick="app.resetCurrentMonth()">🔄 Réinitialiser</button>
+                                </div>
+                            ` : `
+                                <div class="empty-state-text" style="color: #ff9500; margin: 10px 0;">
+                                    📖 Mode consultation - Historique
+                                </div>
+                            `}
                         </div>
 
-                        ${this.categories.length > 0 && this.categories.some(cat => cat.spent > 0) ? `
-                            <div class="chart-container">
-                                <div class="chart-wrapper">
-                                    <canvas id="budgetChart"></canvas>
-                                </div>
-                            </div>
-                        ` : ''}
-
-                        <div class="categories-list">
-                            ${this.categories.length === 0 ? `
-                                <div class="empty-state">
-                                    <div class="empty-state-icon">💰</div>
-                                    <div class="empty-state-text">
-                                        Aucune catégorie créée.<br/>
-                                        Appuyez sur + pour commencer.
-                                    </div>
-                                </div>
-                            ` : this.categories.map(cat => this.renderCategory(cat)).join('')}
+                        <div class="tabs">
+                            <button class="tab ${this.activeTab === 'current' ? 'active' : ''}" onclick="app.changeTab('current')">Ce mois</button>
+                            <button class="tab ${this.activeTab === 'history' ? 'active' : ''}" onclick="app.changeTab('history')">Historique</button>
+                            <button class="tab ${this.activeTab === 'stats' ? 'active' : ''}" onclick="app.changeTab('stats')">Statistiques</button>
                         </div>
 
-                        <button class="add-btn" onclick="app.openCategoryModal()">+</button>
+                        <div class="tab-content ${this.activeTab === 'current' ? 'active' : ''}">
+                            ${this.renderCurrentMonthTab(totalSpent, totalLimit)}
+                        </div>
+
+                        <div class="tab-content ${this.activeTab === 'history' ? 'active' : ''}">
+                            ${this.renderHistoryTab()}
+                        </div>
+
+                        <div class="tab-content ${this.activeTab === 'stats' ? 'active' : ''}">
+                            ${this.renderStatsTab()}
+                        </div>
+
+                        ${isCurrentMonth ? `<button class="add-btn" onclick="app.openCategoryModal()">+</button>` : ''}
 
                         <div id="modal" class="modal">
                             <div class="modal-content" onclick="event.stopPropagation()">
@@ -473,15 +842,202 @@
                 `;
 
                 this.attachEventListeners();
-                if (this.categories.some(cat => cat.spent > 0)) {
+                
+                if (this.activeTab === 'current' && this.categories.some(cat => cat.spent > 0)) {
                     this.renderChart();
                 }
+                
+                if (this.activeTab === 'stats') {
+                    this.renderYearlyChart();
+                }
+            }
+
+            renderCurrentMonthTab(totalSpent, totalLimit) {
+                return `
+                    ${this.categories.length > 0 ? `
+                        <div class="overview-card">
+                            <div class="overview-title">Vue d'ensemble</div>
+                            ${this.categories.some(cat => cat.spent > 0) ? `
+                                <div class="chart-wrapper">
+                                    <canvas id="budgetChart"></canvas>
+                                </div>
+                            ` : ''}
+                            <div class="overview-stats">
+                                <div class="stat-box">
+                                    <div class="stat-label">Budget total</div>
+                                    <div class="stat-value total">${totalLimit.toFixed(2)}€</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Dépensé</div>
+                                    <div class="stat-value spent">${totalSpent.toFixed(2)}€</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Restant</div>
+                                    <div class="stat-value remaining">${(totalLimit - totalSpent).toFixed(2)}€</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-label">Utilisation</div>
+                                    <div class="stat-value">${totalLimit > 0 ? ((totalSpent / totalLimit) * 100).toFixed(1) : 0}%</div>
+                                </div>
+                            </div>
+                            <div class="global-progress">
+                                <div class="global-progress-bar">
+                                    <div class="global-progress-fill" style="width: ${totalLimit > 0 ? Math.min((totalSpent / totalLimit) * 100, 100) : 0}%; background: ${this.getProgressColor(totalSpent, totalLimit)}"></div>
+                                </div>
+                                <div class="global-progress-text">
+                                    ${totalLimit > 0 ? `${((totalSpent / totalLimit) * 100).toFixed(1)}% du budget utilisé` : 'Pas de budget défini'}
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="categories-list">
+                        ${this.categories.length === 0 ? `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">💰</div>
+                                <div class="empty-state-text">
+                                    Aucune catégorie créée.<br/>
+                                    Appuyez sur + pour commencer.
+                                </div>
+                            </div>
+                        ` : this.categories.map(cat => this.renderCategory(cat)).join('')}
+                    </div>
+                `;
+            }
+
+            renderHistoryTab() {
+                const sortedMonths = Object.keys(this.history)
+                    .filter(key => !key.includes('backup'))
+                    .sort((a, b) => b.localeCompare(a));
+
+                if (sortedMonths.length === 0) {
+                    return `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📚</div>
+                            <div class="empty-state-text">
+                                Aucun historique disponible.<br/>
+                                L'historique sera créé automatiquement chaque mois.
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="history-list">
+                        ${sortedMonths.map(monthKey => {
+                            const [year, month] = monthKey.split('-');
+                            const monthName = MONTHS[parseInt(month) - 1];
+                            const data = this.history[monthKey];
+                            const categories = data.categories;
+                            const totalSpent = categories.reduce((sum, cat) => sum + cat.spent, 0);
+                            const totalLimit = categories.reduce((sum, cat) => sum + cat.limit, 0);
+                            const remaining = totalLimit - totalSpent;
+
+                            return `
+                                <div class="history-month">
+                                    <div class="history-month-header">
+                                        <div class="history-month-title">${monthName} ${year}</div>
+                                        <button class="action-btn" onclick="app.viewHistoryMonth('${monthKey}')">👁️ Voir</button>
+                                    </div>
+                                    <div class="history-stats">
+                                        <div class="history-stat">
+                                            <div class="history-stat-label">Budget</div>
+                                            <div class="history-stat-value stat-value total">${totalLimit.toFixed(0)}€</div>
+                                        </div>
+                                        <div class="history-stat">
+                                            <div class="history-stat-label">Dépensé</div>
+                                            <div class="history-stat-value stat-value spent">${totalSpent.toFixed(0)}€</div>
+                                        </div>
+                                        <div class="history-stat">
+                                            <div class="history-stat-label">Restant</div>
+                                            <div class="history-stat-value stat-value remaining">${remaining.toFixed(0)}€</div>
+                                        </div>
+                                    </div>
+                                    <div class="global-progress" style="margin-top: 10px;">
+                                        <div class="global-progress-bar">
+                                            <div class="global-progress-fill" style="width: ${totalLimit > 0 ? Math.min((totalSpent / totalLimit) * 100, 100) : 0}%; background: ${this.getProgressColor(totalSpent, totalLimit)}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
+            renderStatsTab() {
+                return `
+                    <div class="overview-card">
+                        <div class="overview-title">Dépenses annuelles ${this.currentDate.getFullYear()}</div>
+                        <div class="bar-chart-wrapper">
+                            <canvas id="yearlyChart"></canvas>
+                        </div>
+                    </div>
+
+                    ${this.renderYearlyStats()}
+                `;
+            }
+
+            renderYearlyStats() {
+                const currentYear = this.currentDate.getFullYear();
+                const yearlyData = [];
+                
+                for (let month = 0; month < 12; month++) {
+                    const monthKey = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
+                    if (this.history[monthKey]) {
+                        const totalSpent = this.history[monthKey].categories.reduce((sum, cat) => sum + cat.spent, 0);
+                        yearlyData.push(totalSpent);
+                    } else if (month === this.currentDate.getMonth()) {
+                        const totalSpent = this.categories.reduce((sum, cat) => sum + cat.spent, 0);
+                        yearlyData.push(totalSpent);
+                    } else {
+                        yearlyData.push(0);
+                    }
+                }
+
+                const totalYear = yearlyData.reduce((sum, val) => sum + val, 0);
+                const avgMonth = totalYear / 12;
+                const maxMonth = Math.max(...yearlyData);
+                const minMonth = Math.min(...yearlyData.filter(v => v > 0));
+
+                return `
+                    <div class="overview-card">
+                        <div class="overview-title">Résumé ${currentYear}</div>
+                        <div class="overview-stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Total année</div>
+                                <div class="stat-value total">${totalYear.toFixed(0)}€</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Moyenne/mois</div>
+                                <div class="stat-value">${avgMonth.toFixed(0)}€</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Mois max</div>
+                                <div class="stat-value spent">${maxMonth.toFixed(0)}€</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Mois min</div>
+                                <div class="stat-value remaining">${(minMonth === Infinity ? 0 : minMonth).toFixed(0)}€</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            viewHistoryMonth(monthKey) {
+                const [year, month] = monthKey.split('-');
+                this.viewingMonth = new Date(parseInt(year), parseInt(month) - 1, 1);
+                this.loadCurrentMonth();
+                this.activeTab = 'current';
+                this.render();
             }
 
             renderCategory(category) {
                 const percentage = (category.spent / category.limit) * 100;
                 const remaining = category.limit - category.spent;
                 const progressColor = this.getProgressColor(category.spent, category.limit);
+                const isCurrentMonth = this.isCurrentMonth();
 
                 return `
                     <div class="category-card">
@@ -490,11 +1046,13 @@
                                 <div class="category-color" style="background-color: ${category.color}"></div>
                                 <div class="category-name">${category.name}</div>
                             </div>
-                            <div class="category-actions">
-                                <button class="icon-btn" onclick="app.openExpenseModal(${category.id})">➕</button>
-                                <button class="icon-btn" onclick="app.openCategoryModal(${category.id})">✏️</button>
-                                <button class="icon-btn" onclick="app.deleteCategory(${category.id})">🗑️</button>
-                            </div>
+                            ${isCurrentMonth ? `
+                                <div class="category-actions">
+                                    <button class="icon-btn" onclick="app.openExpenseModal(${category.id})">➕</button>
+                                    <button class="icon-btn" onclick="app.openCategoryModal(${category.id})">✏️</button>
+                                    <button class="icon-btn" onclick="app.deleteCategory(${category.id})">🗑️</button>
+                                </div>
+                            ` : ''}
                         </div>
 
                         <div class="category-amounts">
@@ -503,26 +1061,25 @@
                         </div>
 
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%; background-color: ${progressColor}"></div>
+                            <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%; background: ${progressColor}"></div>
                         </div>
 
                         <div class="progress-text">
-                            ${remaining > 0 ? `Reste: ${remaining.toFixed(2)}€` : `Dépassement: ${Math.abs(remaining).toFixed(2)}€`}
-                            (${percentage.toFixed(1)}%)
+                            ${remaining >= 0 ? `Reste ${remaining.toFixed(2)}€` : `Dépassement de ${Math.abs(remaining).toFixed(2)}€`}
                         </div>
 
                         ${category.expenses && category.expenses.length > 0 ? `
-                            <div class="expense-list">
-                                ${category.expenses.slice().reverse().map(exp => `
+                            <div class="expenses-list">
+                                ${category.expenses.map(expense => `
                                     <div class="expense-item">
-                                        <div>
-                                            <div class="expense-description">${exp.description}</div>
-                                            <div class="expense-date">${exp.date}</div>
+                                        <div class="expense-info">
+                                            <div class="expense-description">${expense.description}</div>
+                                            <div class="expense-date">${expense.date}</div>
                                         </div>
-                                        <div style="display: flex; align-items: center; gap: 10px">
-                                            <div class="expense-amount">${exp.amount.toFixed(2)}€</div>
-                                            <button class="icon-btn" onclick="app.deleteExpense(${category.id}, ${exp.id})" style="font-size: 16px">🗑️</button>
-                                        </div>
+                                        <div class="expense-amount">${expense.amount.toFixed(2)}€</div>
+                                        ${isCurrentMonth ? `
+                                            <button class="icon-btn" onclick="app.deleteExpense(${category.id}, ${expense.id})">🗑️</button>
+                                        ` : ''}
                                     </div>
                                 `).join('')}
                             </div>
@@ -535,19 +1092,19 @@
                 const percentage = (spent / limit) * 100;
                 if (percentage >= 100) return '#ff3b30';
                 if (percentage >= 80) return '#ff9500';
+                if (percentage >= 60) return '#ffcc00';
                 return '#34c759';
             }
 
-            openCategoryModal(id = null) {
-                const category = id ? this.categories.find(c => c.id === id) : null;
+            openCategoryModal(categoryId = null) {
                 this.modalMode = 'category';
-                this.editingCategory = category;
-                
-                if (category) {
+                this.editingCategory = categoryId ? this.categories.find(c => c.id === categoryId) : null;
+
+                if (this.editingCategory) {
                     this.formData = {
-                        name: category.name,
-                        limit: category.limit.toString(),
-                        color: category.color,
+                        name: this.editingCategory.name,
+                        limit: this.editingCategory.limit,
+                        color: this.editingCategory.color,
                         expenseDescription: '',
                         expenseAmount: ''
                     };
@@ -562,7 +1119,7 @@
                 }
 
                 document.getElementById('modalTitle').textContent = 
-                    category ? 'Modifier la catégorie' : 'Nouvelle catégorie';
+                    categoryId ? 'Modifier la catégorie' : 'Nouvelle catégorie';
                 
                 document.getElementById('modalBody').innerHTML = `
                     <div class="form-group">
@@ -589,7 +1146,7 @@
                     <div class="btn-group">
                         <button class="btn btn-secondary" onclick="app.closeModal()">Annuler</button>
                         <button class="btn btn-primary" onclick="app.saveCategory()">
-                            ${category ? 'Modifier' : 'Créer'}
+                            ${categoryId ? 'Modifier' : 'Créer'}
                         </button>
                     </div>
                 `;
@@ -770,6 +1327,75 @@
                                             const label = context.label || '';
                                             const value = context.parsed || 0;
                                             return `${label}: ${value.toFixed(2)}€`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }, 100);
+            }
+
+            renderYearlyChart() {
+                setTimeout(() => {
+                    const canvas = document.getElementById('yearlyChart');
+                    if (!canvas) return;
+
+                    const ctx = canvas.getContext('2d');
+
+                    if (this.barChartInstance) {
+                        this.barChartInstance.destroy();
+                    }
+
+                    const currentYear = this.currentDate.getFullYear();
+                    const yearlyData = [];
+                    
+                    for (let month = 0; month < 12; month++) {
+                        const monthKey = `${currentYear}-${String(month + 1).padStart(2, '0')}`;
+                        if (this.history[monthKey]) {
+                            const totalSpent = this.history[monthKey].categories.reduce((sum, cat) => sum + cat.spent, 0);
+                            yearlyData.push(totalSpent);
+                        } else if (month === this.currentDate.getMonth()) {
+                            const totalSpent = this.categories.reduce((sum, cat) => sum + cat.spent, 0);
+                            yearlyData.push(totalSpent);
+                        } else {
+                            yearlyData.push(0);
+                        }
+                    }
+
+                    this.barChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: MONTHS,
+                            datasets: [{
+                                label: 'Dépenses',
+                                data: yearlyData,
+                                backgroundColor: '#007aff',
+                                borderRadius: 8,
+                                barThickness: 24
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '€';
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.parsed.y.toFixed(2) + '€';
                                         }
                                     }
                                 }
